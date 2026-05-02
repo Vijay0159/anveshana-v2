@@ -26,12 +26,22 @@ public class UserService {
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(rawPassword));
         user.getRoles().add("ROLE_USER");
-        user.setEnabled(true);
+        user.setEnabled(false);         // disabled until email is verified
+        user.setEmailVerified(false);
 
         return userRepository.save(user);
     }
 
     public User findByEmail(String email) {
         return userRepository.findByEmail(email).orElse(null);
+    }
+
+    @org.springframework.transaction.annotation.Transactional
+    public void enableUser(String email) {
+        userRepository.findByEmail(email).ifPresent(user -> {
+            user.setEnabled(true);
+            user.setEmailVerified(true);
+            userRepository.save(user);
+        });
     }
 }

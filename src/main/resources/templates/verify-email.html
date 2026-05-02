@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <title>Verify Email – Anveshana</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f0f2f5; --card-bg: #ffffff;
+            --text-color: #1f2937; --accent-color: #0d6efd;
+            --border-color: #e0e0e0; --shadow-color: rgba(15,23,42,0.15);
+        }
+        [data-theme="dark"] {
+            --bg-color: #0b1120; --card-bg: #111827;
+            --text-color: #e5e7eb; --accent-color: #38bdf8;
+            --border-color: #374151;
+        }
+        [data-theme="sunset"] {
+            --bg-color: #fff7ed; --card-bg: #fffbeb;
+            --text-color: #1f2933; --accent-color: #f97316;
+            --border-color: #fcd34d;
+        }
+        [data-theme="forest"] {
+            --bg-color: #0f172a; --card-bg: #020617;
+            --text-color: #e2f3e9; --accent-color: #22c55e;
+            --border-color: #047857;
+        }
+        [data-theme="royal"] {
+            --bg-color: #f5f3ff; --card-bg: #eef2ff;
+            --text-color: #111827; --accent-color: #6366f1;
+            --border-color: #a5b4fc;
+        }
+
+        body {
+            background-color: var(--bg-color); color: var(--text-color);
+            font-family: 'Inter', sans-serif; min-height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .verify-card {
+            background-color: var(--card-bg);
+            padding: 2rem 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            max-width: 420px; width: 100%;
+        }
+
+        .otp-inputs {
+            display: flex; gap: 10px; justify-content: center; margin: 1.5rem 0;
+        }
+
+        .otp-inputs input {
+            width: 48px; height: 56px; text-align: center;
+            font-size: 1.4rem; font-weight: 700;
+            border: 2px solid var(--border-color);
+            border-radius: 10px; background: var(--card-bg);
+            color: var(--text-color); outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .otp-inputs input:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(13,110,253,0.15);
+        }
+
+        .btn-verify {
+            width: 100%; padding: 0.75rem; font-weight: 600;
+            border-radius: 0.75rem;
+            background: linear-gradient(135deg, var(--accent-color) 0%, #0b5ed7 100%);
+            border: none; color: #fff; transition: all 0.2s;
+        }
+        .btn-verify:hover { filter: brightness(1.05); transform: translateY(-1px); }
+
+        .resend-form button {
+            background: none; border: none; padding: 0;
+            color: var(--accent-color); font-weight: 500;
+            text-decoration: underline; cursor: pointer; font-size: 0.9rem;
+        }
+
+        .countdown { font-size: 0.82rem; color: #6b7280; }
+
+        .theme-select {
+            max-width: 140px; font-size: 0.875rem; padding: 0.4rem 0.6rem;
+            border-radius: 0.5rem; border: 2px solid #e5e7eb;
+            background-color: var(--card-bg); color: var(--text-color);
+            position: fixed; bottom: 1rem; right: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="verify-card">
+    <div class="text-center mb-3">
+        <h1 style="font-size:1.8rem; font-weight:700;">🔍 Anveshana</h1>
+        <p style="opacity:0.7; font-size:0.92rem;">Check your email for the 6-digit code</p>
+        <p style="font-size:0.85rem;">
+            Sent to <strong th:text="${email}"></strong>
+        </p>
+    </div>
+
+    <div th:if="${error}" class="alert alert-danger py-2" th:text="${error}"></div>
+    <div th:if="${info}" class="alert alert-info py-2" th:text="${info}"></div>
+
+    <form th:action="@{/verify-email}" method="post" id="otpForm">
+        <input type="hidden" name="email" th:value="${email}">
+        <input type="hidden" name="otp" id="otpHidden">
+
+        <div class="otp-inputs">
+            <input type="text" maxlength="1" class="otp-box" inputmode="numeric" autocomplete="off">
+            <input type="text" maxlength="1" class="otp-box" inputmode="numeric" autocomplete="off">
+            <input type="text" maxlength="1" class="otp-box" inputmode="numeric" autocomplete="off">
+            <input type="text" maxlength="1" class="otp-box" inputmode="numeric" autocomplete="off">
+            <input type="text" maxlength="1" class="otp-box" inputmode="numeric" autocomplete="off">
+            <input type="text" maxlength="1" class="otp-box" inputmode="numeric" autocomplete="off">
+        </div>
+
+        <button type="submit" class="btn btn-verify mb-3">Verify Email</button>
+    </form>
+
+    <div class="text-center">
+        <span class="countdown" id="countdown"></span>
+        <form th:action="@{/resend-otp}" method="post" class="resend-form d-inline" id="resendForm">
+            <input type="hidden" name="email" th:value="${email}">
+            <button type="submit" id="resendBtn" disabled>Resend code</button>
+        </form>
+    </div>
+
+    <p class="text-center mt-3" style="font-size:0.85rem;">
+        <a th:href="@{/login}" style="color:var(--accent-color);">← Back to Login</a>
+    </p>
+</div>
+
+<select id="themeSelect" class="form-select theme-select">
+    <option value="light">🌞 Light</option>
+    <option value="dark">🌙 Dark</option>
+    <option value="sunset">🌅 Sunset</option>
+    <option value="forest">🌲 Forest</option>
+    <option value="royal">👑 Royal</option>
+</select>
+
+<script>
+    // Theme
+    (function () {
+        const root = document.documentElement;
+        const select = document.getElementById('themeSelect');
+        function applyTheme(t) { root.setAttribute('data-theme', t); localStorage.setItem('anveshana-theme', t); }
+        const saved = localStorage.getItem('anveshana-theme');
+        if (saved) { select.value = saved; applyTheme(saved); }
+        select.addEventListener('change', () => applyTheme(select.value));
+    })();
+
+    // OTP box auto-advance
+    const boxes = document.querySelectorAll('.otp-box');
+    boxes.forEach((box, i) => {
+        box.addEventListener('input', () => {
+            box.value = box.value.replace(/\D/g, '');
+            if (box.value && i < boxes.length - 1) boxes[i + 1].focus();
+        });
+        box.addEventListener('keydown', e => {
+            if (e.key === 'Backspace' && !box.value && i > 0) boxes[i - 1].focus();
+        });
+        box.addEventListener('paste', e => {
+            e.preventDefault();
+            const pasted = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6);
+            pasted.split('').forEach((ch, idx) => { if (boxes[idx]) boxes[idx].value = ch; });
+            if (boxes[pasted.length - 1]) boxes[pasted.length - 1].focus();
+        });
+    });
+
+    // Collect OTP into hidden field on submit
+    document.getElementById('otpForm').addEventListener('submit', e => {
+        const otp = Array.from(boxes).map(b => b.value).join('');
+        if (otp.length < 6) { e.preventDefault(); alert('Please enter all 6 digits.'); return; }
+        document.getElementById('otpHidden').value = otp;
+    });
+
+    // Resend cooldown (60s)
+    let seconds = 60;
+    const countdownEl = document.getElementById('countdown');
+    const resendBtn = document.getElementById('resendBtn');
+
+    function tick() {
+        if (seconds > 0) {
+            countdownEl.textContent = 'Resend available in ' + seconds + 's · ';
+            seconds--;
+            setTimeout(tick, 1000);
+        } else {
+            countdownEl.textContent = '';
+            resendBtn.disabled = false;
+        }
+    }
+    tick();
+</script>
+</body>
+</html>
