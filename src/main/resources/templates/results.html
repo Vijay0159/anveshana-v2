@@ -214,6 +214,7 @@
             <option value="royal">👑 Royal</option>
         </select>
 
+    <!-- LOGOUT in navbar now points to cleanup endpoint -->
         <div class="dropdown">
             <button class="profile-btn dropdown-toggle" data-bs-toggle="dropdown">
                 <span th:text="${#authentication.name.substring(0,1).toUpperCase()}"></span>
@@ -221,7 +222,7 @@
             <ul class="dropdown-menu dropdown-menu-end">
                 <li><a class="dropdown-item" th:href="@{/bookmarks}">My Bookmarks</a></li>
                 <li>
-                    <form th:action="@{/logout}" method="post">
+                    <form th:action="@{/logout-and-clear}" method="post">
                         <button type="submit" class="dropdown-item">
                             Logout
                         </button>
@@ -242,6 +243,25 @@
     <a href="/" class="btn btn-outline-secondary btn-sm mb-3">
         ← New Search
     </a>
+
+    <!-- TABS -->
+    <ul class="nav nav-tabs mb-3">
+        <li class="nav-item">
+            <a class="nav-link active" th:href="@{/search(q=${query})}">
+                🗂 Local Results
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/ai-search(q=${query})}">
+                🤖 AI Results
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/saved-search(q=${query})}">
+                📚 Saved
+            </a>
+        </li>
+    </ul>
 
     <p class="small">
         About <strong th:text="${count}"></strong> results

@@ -99,12 +99,20 @@ public class IndexService {
 
     private void collectDocuments(NodeInfo node) {
         if (node.isFile()) {
+            if (!node.getPath().toLowerCase().endsWith(".txt")) {
+                return; // only index plain text files
+            }
             try {
                 String content = Files.readString(new File(node.getPath()).toPath());
                 documents.add(new Document(docIdCounter.getAndIncrement(), node.getPath(), content));
             } catch (IOException e) {
                 System.err.println("Failed to read file: " + node.getPath());
             }
+            return;
+        }
+
+        // skip the ai-cache directory from local indexing
+        if (node.getPath().replace("\\", "/").endsWith("/ai-cache")) {
             return;
         }
 

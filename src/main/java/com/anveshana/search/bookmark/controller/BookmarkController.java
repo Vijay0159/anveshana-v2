@@ -8,7 +8,6 @@ import com.anveshana.search.search.model.Document;
 import com.anveshana.search.search.service.IndexService;
 import com.anveshana.search.search.util.HtmlHighlighter;
 import com.anveshana.search.search.engine.TextTokenizer;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
